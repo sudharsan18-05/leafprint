@@ -2,6 +2,8 @@
 // LEAFPRINT — LocalStorage Utility
 // ============================================
 
+import { safeJsonParse, validateNumber, isValidDateKey } from './sanitize';
+
 const STORAGE_KEY = 'leafprint_data';
 
 const DEFAULT_STATE = {
@@ -25,12 +27,18 @@ const DEFAULT_STATE = {
   },
 };
 
+/**
+ * Loads persisted Leafprint data from localStorage, merging with
+ * DEFAULT_STATE to ensure all fields are always present.
+ * @returns {object} The full application data object.
+ */
 export function loadData() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return JSON.parse(JSON.stringify(DEFAULT_STATE));
-    const parsed = JSON.parse(raw);
-    // Merge with defaults to handle new fields
+    const parsed = safeJsonParse(raw, null);
+    if (!parsed || typeof parsed !== 'object') return JSON.parse(JSON.stringify(DEFAULT_STATE));
+    // Merge with defaults to handle new fields added in updates
     return {
       ...DEFAULT_STATE,
       ...parsed,
@@ -42,19 +50,33 @@ export function loadData() {
   }
 }
 
+/**
+ * Persists the full data object to localStorage.
+ * @param {object} data - The application state to save.
+ */
 export function saveData(data) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   } catch (e) {
-    console.error('Failed to save data:', e);
+    console.error('[Leafprint] Failed to save data:', e);
   }
 }
 
+/**
+ * Clears all Leafprint data from localStorage. Irreversible.
+ */
 export function clearData() {
   localStorage.removeItem(STORAGE_KEY);
 }
 
 // --- Footprint helpers ---
+/**
+ * Appends a new footprint calculation result to the user's history
+ * and awards 25 XP for completing the calculator.
+ * @param {object} data - Current application state.
+ * @param {object} result - The footprint result (must include `total`).
+ * @returns {object} Updated application state.
+ */
 export function saveFootprintResult(data, result) {
   const updated = { ...data };
   updated.footprintHistory = [
@@ -62,25 +84,47 @@ export function saveFootprintResult(data, result) {
     { ...result, date: new Date().toISOString().split('T')[0] },
   ];
   updated.user = { ...data.user, onboardingComplete: true };
-  // Add XP for calculation
-  updated.user.xp = (data.user.xp || 0) + 25;
+  // Award XP for completing a calculation
+  updated.user.xp = validateNumber((data.user.xp || 0) + 25, 0, 999999, 25);
   saveData(updated);
   return updated;
 }
 
 // --- Action helpers ---
+/**
+ * Returns today's date as an ISO string key (YYYY-MM-DD).
+ * @returns {string} Today's date key.
+ */
 export function getTodayKey() {
   return new Date().toISOString().split('T')[0];
 }
 
+/**
+ * Returns all actions logged today.
+ * @param {object} data - Application state.
+ * @returns {Array} List of today's logged actions.
+ */
 export function getTodayActions(data) {
   return data.dailyActions[getTodayKey()] || [];
 }
 
+/**
+ * Checks whether a specific action has been logged today.
+ * @param {object} data - Application state.
+ * @param {string} actionId - The action ID to check.
+ * @returns {boolean} True if the action is already logged today.
+ */
 export function isActionLoggedToday(data, actionId) {
   return getTodayActions(data).some(a => a.id === actionId);
 }
 
+/**
+ * Toggles a daily action on or off for today.
+ * Updates XP, streak, and total CO2 saved accordingly.
+ * @param {object} data - Current application state.
+ * @param {{ id: string, co2Saved: number, xp: number }} action - The action to toggle.
+ * @returns {object} Updated application state.
+ */
 export function toggleAction(data, action) {
   const today = getTodayKey();
   const todayActions = data.dailyActions[today] || [];
@@ -105,10 +149,9 @@ export function toggleAction(data, action) {
     [today]: updatedTodayActions,
   };
 
-  const newTotalCo2 = Math.max(0, (data.achievements.totalCo2Saved || 0) + co2Delta);
-  const newXp = Math.max(0, (data.user.xp || 0) + xpDelta);
+  const newTotalCo2 = validateNumber((data.achievements.totalCo2Saved || 0) + co2Delta, 0, 999999);
+  const newXp = validateNumber((data.user.xp || 0) + xpDelta, 0, 999999);
 
-  // Calculate streak
   const streak = calculateStreak(updatedDailyActions);
 
   const updated = {
@@ -145,6 +188,12 @@ function calculateStreak(dailyActions) {
 }
 
 // --- Badge helpers ---
+/**
+ * Checks which badges the user has newly unlocked based on current data.
+ * @param {object} data - Current application state.
+ * @param {Array<{id: string, condition: function}>} badges - Badge definitions.
+ * @returns {{ data: object, newBadges: string[] }} Updated state and list of newly unlocked badge IDs.
+ */
 export function checkAndUnlockBadges(data, badges) {
   const currentBadges = data.achievements.badges || [];
   const newBadges = badges
@@ -165,9 +214,17 @@ export function checkAndUnlockBadges(data, badges) {
 }
 
 // --- Offsetting helpers ---
+/**
+ * Deducts XP from the user to purchase a carbon offset item.
+ * Returns state unchanged if the user has insufficient XP.
+ * @param {object} data - Current application state.
+ * @param {number} cost - XP cost of the offset.
+ * @param {string} offsetItem - Identifier of the offset being purchased.
+ * @returns {object} Updated application state.
+ */
 export function spendXp(data, cost, offsetItem) {
-  if (data.user.xp < cost) return data; // Not enough XP
-  
+  if (data.user.xp < cost) return data;
+
   const currentOffsets = data.achievements.unlockedOffsets || [];
   const updated = {
     ...data,
@@ -182,14 +239,20 @@ export function spendXp(data, cost, offsetItem) {
 }
 
 // --- Stats helpers ---
+/**
+ * Computes aggregated stats for the current calendar month.
+ * @param {object} data - Application state.
+ * @returns {{ totalSaved: string, daysLogged: number, topActionId: string|undefined }}
+ */
 export function getMonthlyStats(data) {
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   let totalSaved = 0;
   let daysLogged = 0;
-  let actionCounts = {};
+  const actionCounts = {};
 
   Object.entries(data.dailyActions).forEach(([dateStr, actions]) => {
+    if (!isValidDateKey(dateStr)) return; // Skip malformed keys
     const date = new Date(dateStr);
     if (date >= monthStart && date <= now) {
       if (actions.length > 0) daysLogged++;
@@ -200,14 +263,21 @@ export function getMonthlyStats(data) {
     }
   });
 
-  const topActionId = Object.entries(actionCounts).sort(([,a],[,b]) => b - a)[0]?.[0];
+  const topActionId = Object.entries(actionCounts).sort(([, a], [, b]) => b - a)[0]?.[0];
 
   return { totalSaved: totalSaved.toFixed(1), daysLogged, topActionId };
 }
 
+/**
+ * Returns the N most recently logged actions across all days.
+ * @param {object} data - Application state.
+ * @param {number} [limit=5] - Maximum number of actions to return.
+ * @returns {Array<{ id: string, co2Saved: number, date: string }>}
+ */
 export function getRecentActions(data, limit = 5) {
   const all = [];
   const sorted = Object.entries(data.dailyActions)
+    .filter(([dateStr]) => isValidDateKey(dateStr))
     .sort(([a], [b]) => b.localeCompare(a));
 
   for (const [date, actions] of sorted) {
@@ -219,6 +289,11 @@ export function getRecentActions(data, limit = 5) {
   return all;
 }
 
+/**
+ * Builds an ordered array of the last 30 days with logging status.
+ * @param {object} data - Application state.
+ * @returns {Array<{ date: string, day: number, logged: boolean, co2Saved: number }>}
+ */
 export function getLast30Days(data) {
   const result = [];
   const today = new Date();

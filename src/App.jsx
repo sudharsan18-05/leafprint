@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import Navbar from './components/Navbar';
+import ErrorBoundary from './components/ErrorBoundary';
 import './App.css';
 
 // Lazy loading for code quality optimization (Hackathon Criteria)
@@ -20,23 +21,36 @@ const PageLoader = () => (
   </div>
 );
 
+// 404 Not Found Fallback
+const NotFound = () => (
+  <div className="page" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', gap: '1rem', textAlign: 'center' }}>
+    <div style={{ fontSize: '3rem' }}>🌿</div>
+    <h1 style={{ fontSize: '1.75rem', fontWeight: 800 }}>Page Not Found</h1>
+    <p style={{ color: 'var(--color-text-secondary)' }}>This path doesn't exist in Leafprint.</p>
+    <a href="/" style={{ color: 'var(--color-primary)', fontWeight: 600 }}>Go to Home →</a>
+  </div>
+);
+
 export default function App() {
   return (
-    <BrowserRouter>
-      <Navbar />
-      <main>
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/calculator" element={<Calculator />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/actions" element={<Actions />} />
-            <Route path="/insights" element={<Insights />} />
-            <Route path="/achievements" element={<Achievements />} />
-            <Route path="/community" element={<Community />} />
-          </Routes>
-        </Suspense>
-      </main>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <Navbar />
+        <main>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/calculator" element={<Calculator />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/actions" element={<Actions />} />
+              <Route path="/insights" element={<Insights />} />
+              <Route path="/achievements" element={<Achievements />} />
+              <Route path="/community" element={<Community />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
+        </main>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
