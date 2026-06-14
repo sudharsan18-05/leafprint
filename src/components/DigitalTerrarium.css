@@ -1,0 +1,248 @@
+.terrarium-container {
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 1.5s ease;
+}
+
+.terrarium-glass {
+  position: relative;
+  height: 280px;
+  width: 100%;
+  overflow: hidden;
+  transition: all 1s ease-in-out;
+}
+
+/* =========================================
+   STATE STYLES
+   ========================================= */
+
+/* Neutral State */
+.terrarium-neutral .terrarium-glass { background: linear-gradient(to bottom, #dbeafe, #f0fdf4); }
+.terrarium-neutral .terrarium-sun { background: #fcd34d; opacity: 0.8; box-shadow: 0 0 40px #fcd34d; }
+.terrarium-neutral .terrarium-smog { opacity: 0.2; }
+.terrarium-neutral .cloud { color: #ffffff; opacity: 0.8; }
+.terrarium-neutral .terrarium-ground { background: linear-gradient(to bottom, #a7f3d0, #34d399); }
+.terrarium-neutral .trunk { background: #8b5cf6; }
+.terrarium-neutral .leaves { background: #10b981; }
+.terrarium-neutral .terrarium-factory { transform: translateY(100px); opacity: 0; }
+.terrarium-neutral .particle { background: #34d399; width: 6px; height: 6px; border-radius: 50%; opacity: 0.6; }
+
+/* Healthy State */
+.terrarium-healthy .terrarium-glass { background: linear-gradient(to bottom, #a7f3d0, #6ee7b7); }
+.terrarium-healthy .terrarium-sun { background: #fbbf24; box-shadow: 0 0 60px 20px #fde68a; width: 80px; height: 80px; }
+.terrarium-healthy .terrarium-smog { opacity: 0; }
+.terrarium-healthy .cloud { color: #ffffff; opacity: 0.9; }
+.terrarium-healthy .terrarium-ground { background: linear-gradient(to bottom, #10b981, #059669); }
+.terrarium-healthy .trunk { background: #5b21b6; }
+.terrarium-healthy .leaves { background: #047857; }
+.terrarium-healthy .terrarium-factory { transform: translateY(100px); opacity: 0; }
+.terrarium-healthy .particle { background: #fbbf24; width: 8px; height: 8px; clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); opacity: 0.8; animation: floatUpHealthy 4s infinite linear; }
+
+/* Stressed State */
+.terrarium-stressed .terrarium-glass { background: linear-gradient(to bottom, #cbd5e1, #94a3b8); }
+.terrarium-stressed .terrarium-sun { background: #f87171; opacity: 0.4; box-shadow: 0 0 20px #f87171; }
+.terrarium-stressed .terrarium-smog { opacity: 0.7; background: linear-gradient(to bottom, rgba(71, 85, 105, 0.8), rgba(148, 163, 184, 0.2)); }
+.terrarium-stressed .cloud { color: #64748b; opacity: 0.6; }
+.terrarium-stressed .terrarium-ground { background: linear-gradient(to bottom, #9ca3af, #6b7280); }
+.terrarium-stressed .trunk { background: #4b5563; }
+.terrarium-stressed .leaves { background: #9ca3af; }
+.terrarium-stressed .terrarium-factory { transform: translateY(0); opacity: 1; }
+.terrarium-stressed .particle { background: #334155; width: 4px; height: 4px; border-radius: 2px; opacity: 0.8; animation: floatDownStressed 3s infinite linear; }
+
+/* =========================================
+   ELEMENTS
+   ========================================= */
+
+.terrarium-sky {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 30%;
+  z-index: 1;
+}
+
+.terrarium-sun {
+  position: absolute;
+  top: 20px; left: 30px;
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  transition: all 1s ease-in-out;
+}
+
+.terrarium-smog {
+  position: absolute;
+  inset: 0;
+  transition: all 1s ease-in-out;
+  pointer-events: none;
+}
+
+.cloud {
+  position: absolute;
+  width: 120px;
+  transition: all 1s ease-in-out;
+}
+
+.cloud-1 { top: 10%; animation: floatCloud1 40s linear infinite; }
+.cloud-2 { top: 30%; width: 80px; animation: floatCloud2 30s linear infinite; }
+
+@keyframes floatCloud1 { 0% { left: -150px; } 100% { left: 100%; } }
+@keyframes floatCloud2 { 0% { left: 100%; } 100% { left: -100px; } }
+
+.terrarium-ground {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 35%;
+  transition: all 1s ease-in-out;
+  z-index: 2;
+  border-radius: 50% 50% 0 0 / 20px 20px 0 0;
+}
+
+/* Factory */
+.terrarium-factory {
+  position: absolute;
+  bottom: 20px; right: 40px;
+  transition: all 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 3;
+}
+
+.building {
+  width: 80px; height: 50px;
+  background: #475569;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+
+.chimney {
+  position: absolute;
+  bottom: 50px; left: 10px;
+  width: 16px; height: 60px;
+  background: #334155;
+}
+
+.chimney-small {
+  left: 40px; height: 40px; width: 12px;
+}
+
+/* Trees */
+.terrarium-tree {
+  position: absolute;
+  bottom: 20px;
+  z-index: 4;
+}
+
+.tree-left { left: 15%; transform: scale(0.8); }
+.tree-center { left: 45%; transform: scale(1.1); z-index: 5; }
+.tree-right { left: 75%; transform: scale(0.9); }
+
+.trunk {
+  width: 16px; height: 50px;
+  margin: 0 auto;
+  border-radius: 8px;
+  transition: all 1s ease;
+}
+
+.leaves {
+  position: absolute;
+  border-radius: 50%;
+  transition: all 1s ease;
+}
+
+.leaves-1 { width: 60px; height: 60px; top: -40px; left: -22px; }
+.leaves-2 { width: 50px; height: 50px; top: -20px; left: -35px; }
+.leaves-3 { width: 50px; height: 50px; top: -20px; left: 0px; }
+
+/* Particles */
+.particles {
+  position: absolute; inset: 0; z-index: 6; pointer-events: none; overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  transition: all 1s ease;
+}
+
+.p1 { left: 10%; bottom: 10%; animation-delay: 0s; }
+.p2 { left: 30%; bottom: 30%; animation-delay: 1s; }
+.p3 { left: 50%; bottom: 50%; animation-delay: 2s; }
+.p4 { left: 70%; bottom: 20%; animation-delay: 0.5s; }
+.p5 { left: 90%; bottom: 40%; animation-delay: 1.5s; }
+
+@keyframes floatUpHealthy {
+  0% { transform: translateY(0) scale(1); opacity: 0; }
+  20% { opacity: 0.8; }
+  80% { opacity: 0.8; }
+  100% { transform: translateY(-150px) scale(1.5) rotate(180deg); opacity: 0; }
+}
+
+@keyframes floatDownStressed {
+  0% { transform: translateY(-150px) translateX(0); opacity: 0; }
+  20% { opacity: 0.8; }
+  80% { opacity: 0.8; }
+  100% { transform: translateY(0) translateX(20px); opacity: 0; }
+}
+
+/* Footer */
+.terrarium-footer {
+  padding: var(--space-4) var(--space-5);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--space-4);
+  background: var(--color-surface);
+  flex-wrap: wrap;
+}
+
+.terrarium-footer .terrarium-caption {
+  grid-column: 1 / -1;
+  margin-top: 0;
+}
+
+.terrarium-status-badge {
+  background: var(--color-border-light);
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: background 1.5s ease, color 1.5s ease;
+}
+
+.terrarium-health-bar-wrap {
+  flex: 1;
+  height: 8px;
+  background: var(--color-border-light);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.terrarium-health-bar {
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1), background 1.5s ease;
+}
+
+.terrarium-stressed .terrarium-health-bar { background: #DC2626; }
+.terrarium-neutral .terrarium-health-bar { background: #D97706; }
+
+.terrarium-health-pct {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  min-width: 36px;
+  text-align: right;
+}
+
+.terrarium-healthy .terrarium-status-badge { background: #d1fae5; color: #065f46; }
+.terrarium-stressed .terrarium-status-badge { background: #fee2e2; color: #991b1b; }
+
+.terrarium-caption {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+  margin: 0;
+}

@@ -1,0 +1,223 @@
+/* ============================================
+   INSIGHTS PAGE STYLES
+   ============================================ */
+
+.insights-page { background: var(--color-bg); }
+
+.insights-title {
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.insights-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: var(--space-10);
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+/* Quick Wins */
+.quick-wins-section {
+  margin-bottom: var(--space-10);
+}
+
+.section-intro {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.section-intro-icon {
+  font-size: 2rem;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #FEF3C7;
+  border-radius: var(--radius-lg);
+  flex-shrink: 0;
+}
+
+.quick-wins-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-5);
+}
+
+.quick-win-card {
+  position: relative;
+  padding: var(--space-6);
+  border-top: 3px solid var(--color-primary);
+}
+
+.quick-win-rank {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-border);
+  line-height: 1;
+  margin-bottom: var(--space-2);
+  letter-spacing: -0.03em;
+}
+
+.quick-win-saving {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-3);
+}
+
+.quick-win-title {
+  margin-bottom: var(--space-2);
+}
+
+.quick-win-desc {
+  line-height: 1.6;
+  margin-bottom: var(--space-4);
+}
+
+.quick-win-badges {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Category Tabs */
+.category-tabs {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.cat-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.cat-tab:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.cat-tab.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Tips Grid */
+.tips-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-5);
+  margin-bottom: var(--space-8);
+}
+
+.tip-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.tip-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.tip-badges {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.tip-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.tip-impact {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.tip-saving {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.tip-saving-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: -0.02em;
+}
+
+.tip-saving-label {
+  font-size: 0.6875rem;
+  color: var(--color-text-muted);
+}
+
+.tip-title {
+  color: var(--color-text-primary);
+}
+
+.tip-desc {
+  line-height: 1.65;
+}
+
+/* Methodology note */
+.methodology-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.method-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .quick-wins-grid { grid-template-columns: 1fr; }
+  .tips-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .insights-header { flex-direction: column; }
+}

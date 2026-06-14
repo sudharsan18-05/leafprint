@@ -1,0 +1,74 @@
+.community-page {
+  padding-bottom: var(--space-12);
+}
+
+.community-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-6);
+  margin-bottom: var(--space-8);
+}
+
+.leaderboard-list {
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.leaderboard-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.leaderboard-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card);
+}
+
+.rank-badge {
+  width: 28px;
+  height: 28px;
+  background: var(--color-border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.leaderboard-item:nth-child(1) .rank-badge { background: #FDE68A; color: #D97706; } /* Gold */
+.leaderboard-item:nth-child(2) .rank-badge { background: #E5E7EB; color: #4B5563; } /* Silver */
+.leaderboard-item:nth-child(3) .rank-badge { background: #FED7AA; color: #C2410C; } /* Bronze */
+
+.user-avatar {
+  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F3F4F6;
+  border-radius: 50%;
+}
+
+.current-user-item {
+  border-radius: var(--radius-lg);
+  position: sticky;
+  bottom: 16px;
+  box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
+}
+
+@media (max-width: 768px) {
+  .community-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
