@@ -1,6 +1,27 @@
+/**
+ * @fileoverview DigitalTerrarium — an animated CSS ecosystem that reacts
+ * to the user's carbon footprint health score (0.0 – 1.0).
+ * Health is derived from footprint total and daily action bonuses.
+ */
+
 import { useState, useEffect } from 'react';
 import { loadData } from '../utils/storage';
 import './DigitalTerrarium.css';
+
+/** Maximum footprint (tonnes) at which health reaches 0.0 */
+const MAX_FOOTPRINT_TONNES = 15;
+
+/** Health threshold above which the ecosystem is considered thriving */
+const HEALTHY_THRESHOLD = 0.65;
+
+/** Health threshold below which the ecosystem is considered stressed */
+const STRESSED_THRESHOLD = 0.35;
+
+/** XP bonus per logged action (capped at MAX_ACTION_BONUS) */
+const ACTION_BONUS_PER_LOG = 0.03;
+
+/** Maximum total bonus from daily actions */
+const MAX_ACTION_BONUS = 0.15;
 
 export default function DigitalTerrarium() {
   const [health, setHealth] = useState(0.5);
@@ -15,20 +36,20 @@ export default function DigitalTerrarium() {
 
     const latest = data.footprintHistory[data.footprintHistory.length - 1];
     const total = latest.total;
-    // Map: 0t = 1.0 health, 15t+ = 0.0 health
-    const h = Math.max(0, Math.min(1, 1 - total / 15));
+    // Map: 0t = 1.0 health, MAX_FOOTPRINT_TONNES+ = 0.0 health
+    const h = Math.max(0, Math.min(1, 1 - total / MAX_FOOTPRINT_TONNES));
 
-    // Boost health based on daily actions logged
+    // Boost health based on daily actions logged today
     const today = new Date().toISOString().split('T')[0];
     const todayActions = data.dailyActions[today] || [];
-    const actionBonus = Math.min(todayActions.length * 0.03, 0.15);
+    const actionBonus = Math.min(todayActions.length * ACTION_BONUS_PER_LOG, MAX_ACTION_BONUS);
 
     setHealth(Math.min(1, h + actionBonus));
   }, []);
 
-  // Determine state classes based on health
-  const isHealthy = health > 0.65;
-  const isStressed = health < 0.35;
+  // Determine state class based on named health thresholds
+  const isHealthy = health > HEALTHY_THRESHOLD;
+  const isStressed = health < STRESSED_THRESHOLD;
 
   let stateClass = 'terrarium-neutral';
   let statusText = '🌤️ Recovering Ecosystem';
